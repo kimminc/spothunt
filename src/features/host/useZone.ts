@@ -10,22 +10,24 @@ export function useZone(roomId: string) {
   const [radius, setRadius] = useState(300)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [gpsLoading, setGpsLoading] = useState(false)
 
   useEffect(() => {
-    // DB에서 기존 설정 로드
     supabase.from('event_rooms').select('*').eq('id', roomId).single()
       .then(({ data }) => {
         if (!data) return
         setRoom(data as EventRoom)
         if (data.center_lat && data.center_lat !== 0) {
-          // 기존 저장된 위치가 있으면 그걸 사용
           setCenter({ lat: data.center_lat, lng: data.center_lng })
           setRadius(data.boundary_radius_meter)
         } else {
-          // 없으면 현재 위치로 자동 초기화
+          setGpsLoading(true)
           navigator.geolocation?.getCurrentPosition(
-            (pos) => setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-            () => {}  // 권한 거부 시 무시 (버튼으로 재시도 가능)
+            (pos) => {
+              setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+              setGpsLoading(false)
+            },
+            () => setGpsLoading(false)
           )
         }
       })
@@ -55,5 +57,5 @@ export function useZone(roomId: string) {
     router.push(`/host/${roomId}/items`)
   }
 
-  return { room, center, radius, setRadius, saving, error, handleMapClick, useCurrentLocation, saveZone }
+  return { room, center, radius, setRadius, saving, error, gpsLoading, handleMapClick, useCurrentLocation, saveZone }
 }

@@ -6,16 +6,18 @@ import { useZone } from '@/features/host/useZone'
 
 const KakaoMap = dynamic(() => import('@/components/map/kakao-map'), { ssr: false })
 
+const SEOUL = { lat: 37.5665, lng: 126.978 }
+
 export default function ZonePage() {
   const { roomId } = useParams<{ roomId: string }>()
-  const { center, radius, setRadius, saving, error, handleMapClick, useCurrentLocation, saveZone } = useZone(roomId)
+  const { center, radius, setRadius, saving, error, gpsLoading, handleMapClick, useCurrentLocation, saveZone } = useZone(roomId)
 
   return (
     <main className="flex h-screen flex-col bg-knear">
       {/* 지도 */}
       <div className="relative flex-1 min-h-0">
         <KakaoMap
-          center={center ?? { lat: 37.5665, lng: 126.978 }}
+          center={center ?? SEOUL}
           zoom={4}
           pin={center}
           zone={center ? { lat: center.lat, lng: center.lng, radiusM: radius } : null}
@@ -23,17 +25,27 @@ export default function ZonePage() {
           className="h-full w-full"
         />
 
-        {/* 안내 배너 */}
-        <div className="absolute left-0 right-0 top-3 flex justify-center px-4 pointer-events-none">
-          <div className="rounded-xl bg-knear/75 px-4 py-2 text-sm text-white backdrop-blur">
-            {center ? '📍 중심 위치가 설정됐어요' : '지도를 탭해서 이벤트 중심 위치를 선택하세요'}
+        {/* GPS 로딩 오버레이 — center가 없을 때 지도를 가림 */}
+        {gpsLoading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-knear/80 backdrop-blur-sm z-10">
+            <div className="text-4xl mb-3 animate-pulse">📡</div>
+            <p className="text-white text-sm font-medium">현재 위치를 가져오는 중...</p>
           </div>
-        </div>
+        )}
+
+        {/* 안내 배너 */}
+        {!gpsLoading && (
+          <div className="absolute left-0 right-0 top-3 flex justify-center px-4 pointer-events-none">
+            <div className="rounded-xl bg-knear/75 px-4 py-2 text-sm text-white backdrop-blur">
+              {center ? '📍 중심 위치가 설정됐어요' : '지도를 탭해서 이벤트 중심 위치를 선택하세요'}
+            </div>
+          </div>
+        )}
 
         {/* 내 위치 버튼 */}
         <button
           onClick={useCurrentLocation}
-          className="absolute bottom-4 right-4 rounded-full bg-white p-3 shadow-kraken text-lg transition-transform hover:scale-105"
+          className="absolute bottom-4 right-4 rounded-full bg-white p-3 shadow-kraken text-lg transition-transform hover:scale-105 z-10"
           title="현재 위치로"
         >
           📡
@@ -41,7 +53,7 @@ export default function ZonePage() {
       </div>
 
       {/* 하단 패널 */}
-      <div className="rounded-t-3xl bg-white px-5 pt-5 pb-8 shadow-kraken-up space-y-4 border-t border-kgray-border">
+      <div className="rounded-t-3xl bg-white px-5 pt-5 pb-8 shadow-kraken-up border-t border-kgray-border space-y-4">
         <div>
           <div className="mb-2 flex items-center justify-between">
             <label className="text-sm font-medium text-knear">이벤트 반경</label>
