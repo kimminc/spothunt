@@ -14,35 +14,47 @@ export default function ScorePage() {
   const myScore = scores.find((s) => s.participant.id === session?.participantId)
   const myRank = myScore ? scores.indexOf(myScore) + 1 : null
 
-  if (loading) return <div className="flex min-h-screen items-center justify-center text-gray-400">로딩 중...</div>
+  if (loading) return (
+    <div className="flex min-h-screen items-center justify-center text-kgray-light">로딩 중...</div>
+  )
 
   return (
-    <main className="min-h-screen bg-gray-50 p-4">
+    <main className="min-h-screen bg-white px-4 py-6">
       <div className="mx-auto max-w-md space-y-4">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-gray-400 text-xl">←</button>
-          <h1 className="text-xl font-bold text-gray-900">점수판</h1>
+          <button
+            onClick={() => router.back()}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-kgray-bg text-kgray transition-colors hover:bg-kgray-border"
+          >
+            ←
+          </button>
+          <h1
+            className="font-display text-xl font-bold text-knear"
+            style={{ letterSpacing: '-0.5px' }}
+          >
+            점수판
+          </h1>
         </div>
 
         {/* 내 점수 */}
         {myScore && (
-          <div className="rounded-2xl bg-indigo-600 p-5 text-white text-center">
-            <p className="text-sm opacity-80">{myRank}위 · {myScore.participant.nickname}</p>
-            <p className="text-4xl font-bold mt-1">{myScore.score}점</p>
-            <p className="text-sm opacity-70 mt-1">{myScore.itemCount}개 획득</p>
+          <div className="rounded-2xl bg-kp p-6 text-white text-center shadow-kraken">
+            <p className="text-sm opacity-75">{myRank}위 · {myScore.participant.nickname}</p>
+            <p className="text-5xl font-bold mt-2">{myScore.score}<span className="text-2xl font-normal ml-1">점</span></p>
+            <p className="text-sm opacity-60 mt-1">{myScore.itemCount}개 획득</p>
           </div>
         )}
 
         {/* 내 획득 목록 */}
         {myRecords.length > 0 && (
-          <div className="rounded-2xl bg-white p-4 shadow">
-            <h2 className="mb-3 font-semibold text-gray-800">내 획득 아이템</h2>
-            <ul className="space-y-2">
+          <div className="rounded-2xl border border-kgray-border bg-white p-5 shadow-kraken">
+            <h2 className="mb-3 font-semibold text-knear">내 획득 아이템</h2>
+            <ul className="space-y-2.5">
               {myRecords.map((r) => (
                 <li key={r.id} className="flex items-center gap-3">
                   <span className="text-2xl">{ITEM_IMAGES[r.item.image_key as ItemImageKey] ?? '📍'}</span>
-                  <span className="flex-1 text-sm text-gray-700">{r.item.name}</span>
-                  <span className="text-sm font-bold text-indigo-600">+{r.item.score}점</span>
+                  <span className="flex-1 text-sm text-knear">{r.item.name}</span>
+                  <span className="text-sm font-bold text-kp">+{r.item.score}점</span>
                 </li>
               ))}
             </ul>
@@ -50,21 +62,24 @@ export default function ScorePage() {
         )}
 
         {/* 전체 랭킹 */}
-        <div className="rounded-2xl bg-white p-4 shadow">
-          <h2 className="mb-3 font-semibold text-gray-800">전체 랭킹</h2>
-          <ul className="space-y-2">
+        <div className="rounded-2xl border border-kgray-border bg-white p-5 shadow-kraken">
+          <h2 className="mb-3 font-semibold text-knear">전체 랭킹</h2>
+          <ul className="space-y-1.5">
             {scores.map((s, i) => {
               const isMe = s.participant.id === session?.participantId
               const medals = ['🥇', '🥈', '🥉']
               return (
-                <li key={s.participant.id}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2 ${isMe ? 'bg-indigo-50' : ''}`}
+                <li
+                  key={s.participant.id}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${
+                    isMe ? 'bg-kp-faint' : 'hover:bg-kgray-bg'
+                  }`}
                 >
-                  <span className="w-6 text-center">{medals[i] ?? `${i + 1}`}</span>
-                  <span className={`flex-1 text-sm ${isMe ? 'font-bold text-indigo-700' : 'text-gray-700'}`}>
-                    {s.participant.nickname} {isMe && '(나)'}
+                  <span className="w-6 text-center text-sm">{medals[i] ?? `${i + 1}`}</span>
+                  <span className={`flex-1 text-sm ${isMe ? 'font-bold text-kp' : 'text-knear'}`}>
+                    {s.participant.nickname} {isMe && <span className="text-xs opacity-70">(나)</span>}
                   </span>
-                  <span className="text-sm font-bold text-gray-800">{s.score}점</span>
+                  <span className="text-sm font-bold text-knear">{s.score}점</span>
                 </li>
               )
             })}
@@ -73,7 +88,7 @@ export default function ScorePage() {
 
         <button
           onClick={() => router.push(`/join/${roomId}/play`)}
-          className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white"
+          className="w-full rounded-xl bg-kp py-[13px] text-base font-semibold text-white transition-colors hover:bg-kp-dark"
         >
           지도로 돌아가기 →
         </button>

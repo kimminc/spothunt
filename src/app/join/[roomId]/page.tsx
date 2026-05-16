@@ -19,39 +19,52 @@ export default function JoinRoomPage() {
     await join(password, nickname)
   }
 
-  if (!room) return <div className="flex min-h-screen items-center justify-center text-gray-400">로딩 중...</div>
+  if (!room) return (
+    <div className="flex min-h-screen items-center justify-center text-kgray-light">로딩 중...</div>
+  )
 
   return (
-    <main className="min-h-screen bg-gray-50 p-4">
+    <main className="min-h-screen bg-white px-4 py-6">
       <div className="mx-auto max-w-md">
-        <h1 className="mb-1 text-2xl font-bold text-gray-900">{room.room_name}</h1>
-        <p className="mb-6 text-sm text-gray-400">{room.mode === 'ALL' ? '모두획득형' : '경쟁형'}</p>
+        <div className="mb-8">
+          <h1
+            className="font-display text-[28px] font-bold text-knear"
+            style={{ letterSpacing: '-0.5px' }}
+          >
+            {room.room_name}
+          </h1>
+          <p className="mt-1 text-sm text-kgray-light">
+            {room.mode === 'ALL' ? '모두획득형' : '경쟁형'}
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl bg-white p-6 shadow">
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-kgray-border bg-white p-6 shadow-kraken">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">비밀번호</label>
+            <label className="mb-1.5 block text-sm font-medium text-knear">비밀번호</label>
             <input
               type="password" value={password} onChange={(e) => setPassword(e.target.value)}
               placeholder="주최자에게 받은 비밀번호"
-              className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-xl border border-kgray-border bg-kgray-bg px-3 py-2.5 text-sm text-knear placeholder:text-kgray-light outline-none transition focus:border-kp focus:bg-white focus:ring-1 focus:ring-kp"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">닉네임</label>
+            <label className="mb-1.5 block text-sm font-medium text-knear">닉네임</label>
             <input
               value={nickname} onChange={(e) => setNickname(e.target.value)}
               placeholder="게임에서 표시될 이름"
               maxLength={20}
-              className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-xl border border-kgray-border bg-kgray-bg px-3 py-2.5 text-sm text-knear placeholder:text-kgray-light outline-none transition focus:border-kp focus:bg-white focus:ring-1 focus:ring-kp"
             />
           </div>
 
-          {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="rounded-xl bg-red-50 px-3 py-2.5 text-sm text-red-600">{error}</p>
+          )}
 
           <button
             type="submit" disabled={!isValid || loading}
-            className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white disabled:opacity-40 hover:bg-indigo-700"
+            className="w-full rounded-xl bg-kp py-[13px] text-base font-semibold text-white transition-colors hover:bg-kp-dark disabled:opacity-40"
           >
             {loading ? '입장 중...' : '입장하기'}
           </button>

@@ -18,7 +18,6 @@ export default function PlayPage() {
   const { room, gameItems } = useGameMap(roomId, lat, lng)
   const { collect, collecting, getResultMessage } = useCollectItem()
 
-  // 이벤트 종료 감지 → 점수판으로 자동 이동
   useEffect(() => {
     const channel = supabase
       .channel(`play-status-${roomId}`)
@@ -33,7 +32,6 @@ export default function PlayPage() {
   const zone = room ? { lat: room.center_lat, lng: room.center_lng, radiusM: room.boundary_radius_meter } : null
   const mapCenter = lat && lng ? { lat, lng } : (room ? { lat: room.center_lat, lng: room.center_lng } : undefined)
 
-  // 탐지 반경 안에 든 아이템만 지도에 표시 (미발견 아이템은 숨김)
   const markers = gameItems
     .filter((item) => item.isRevealed)
     .map((item) => ({
@@ -43,20 +41,21 @@ export default function PlayPage() {
       dimmed: item.isCollected || item.isSoldOut,
     }))
 
-  // 반경 안에 있고 아직 획득 안 한 아이템
   const nearbyItem = gameItems.find((i) => i.isNearby && !i.isCollected && !i.isSoldOut)
-
   const resultMsg = getResultMessage()
 
-  // GPS 권한 거부
   if (gpsError) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-6 text-center gap-4">
+      <main className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center gap-5">
         <div className="text-5xl">📡</div>
-        <h1 className="text-lg font-bold text-red-500">위치 권한 필요</h1>
-        <p className="text-sm text-gray-500">{gpsError}</p>
-        <button onClick={() => window.location.reload()}
-          className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white">
+        <div>
+          <h1 className="text-lg font-bold text-red-500">위치 권한 필요</h1>
+          <p className="mt-1 text-sm text-kgray-light">{gpsError}</p>
+        </div>
+        <button
+          onClick={() => window.location.reload()}
+          className="rounded-xl bg-kp px-6 py-[13px] text-sm font-semibold text-white transition-colors hover:bg-kp-dark"
+        >
           다시 시도
         </button>
       </main>
@@ -79,16 +78,16 @@ export default function PlayPage() {
         {/* GPS 로딩 배너 */}
         {gpsLoading && (
           <div className="absolute left-0 right-0 top-3 flex justify-center pointer-events-none">
-            <div className="rounded-xl bg-black/70 px-4 py-2 text-sm text-white backdrop-blur">
+            <div className="rounded-xl bg-knear/80 px-4 py-2 text-sm text-white backdrop-blur">
               📡 위치 확인 중...
             </div>
           </div>
         )}
 
-        {/* 정확도 표시 */}
+        {/* 내 위치 표시 */}
         {lat && lng && (
           <div className="absolute top-3 right-3 pointer-events-none">
-            <div className="rounded-lg bg-black/50 px-2 py-1 text-xs text-white backdrop-blur">
+            <div className="rounded-xl bg-knear/60 px-2.5 py-1.5 text-xs text-white backdrop-blur">
               내 위치 ✅
             </div>
           </div>
@@ -97,7 +96,7 @@ export default function PlayPage() {
         {/* 점수판 버튼 */}
         <button
           onClick={() => router.push(`/join/${roomId}/score`)}
-          className="absolute top-3 left-3 rounded-xl bg-white px-3 py-2 text-sm font-medium shadow"
+          className="absolute top-3 left-3 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-knear shadow-kraken border border-kgray-border transition-colors hover:bg-kgray-bg"
         >
           🏆 점수판
         </button>
@@ -105,8 +104,8 @@ export default function PlayPage() {
         {/* 획득 결과 토스트 */}
         {resultMsg && (
           <div className="absolute left-4 right-4 bottom-36 flex justify-center pointer-events-none">
-            <div className={`rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-lg backdrop-blur ${
-              resultMsg.startsWith('🎉') ? 'bg-green-500' : 'bg-red-500'
+            <div className={`rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-kraken backdrop-blur ${
+              resultMsg.startsWith('🎉') ? 'bg-kgreen' : 'bg-red-500'
             }`}>
               {resultMsg}
             </div>
@@ -114,14 +113,14 @@ export default function PlayPage() {
         )}
       </div>
 
-      {/* 하단 — 아이템 획득 패널 */}
-      <div className="bg-white px-4 py-4 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+      {/* 하단 아이템 획득 패널 */}
+      <div className="bg-white px-4 py-4 shadow-kraken-up border-t border-kgray-border">
         {nearbyItem ? (
           <div className="flex items-center gap-3">
             <div className="text-4xl">{ITEM_IMAGES[nearbyItem.image_key as ItemImageKey] ?? '📍'}</div>
             <div className="flex-1">
-              <p className="font-bold text-gray-900">{nearbyItem.name}</p>
-              <p className="text-sm text-gray-400">
+              <p className="font-bold text-knear">{nearbyItem.name}</p>
+              <p className="text-sm text-kgray-light">
                 {nearbyItem.score}점
                 {nearbyItem.max_winners && ` · 남은 수량 ${nearbyItem.max_winners - nearbyItem.collected_count}`}
                 {nearbyItem.distanceM !== null && ` · ${Math.round(nearbyItem.distanceM)}m`}
@@ -130,13 +129,13 @@ export default function PlayPage() {
             <button
               onClick={() => lat && lng && collect(nearbyItem.id, lat, lng)}
               disabled={collecting || !lat}
-              className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
+              className="rounded-xl bg-kp px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-kp-dark disabled:opacity-50"
             >
               {collecting ? '획득 중...' : '획득하기'}
             </button>
           </div>
         ) : (
-          <div className="text-center text-sm text-gray-400 py-2">
+          <div className="py-2 text-center text-sm text-kgray-light">
             {gameItems.filter((i) => !i.isCollected && !i.isSoldOut).length === 0
               ? '🎊 모든 아이템을 획득했어요!'
               : gameItems.some((i) => i.isRevealed && !i.isCollected && !i.isSoldOut)
