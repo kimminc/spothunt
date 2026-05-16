@@ -1,0 +1,9 @@
+.next/
+node_modules/
+.env.local
+.env
+*.log
+.DS_Store
+.bkit/
+.claude/
+프로젝트시나리오.md

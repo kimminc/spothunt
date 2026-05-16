@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(bkit:pdca)",
+      "PowerShell(New-Item *)",
+      "PowerShell(npm *)",
+      "PowerShell(Rename-Item *)",
+      "PowerShell(Get-ChildItem \"C:\\\\VibeCoding\\\\spothunt\\\\src\" -Recurse -File | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\"C:\\\\VibeCoding\\\\spothunt\\\\src\\\\\", \"\"\\) })"
+    ]
+  }
+}
