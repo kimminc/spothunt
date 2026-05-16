@@ -81,6 +81,13 @@ export default function KakaoMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // center prop 변경 시 지도 자동 이동 (GPS 로드 후 초기 센터링에 사용)
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !window.kakao?.maps?.LatLng) return
+    map.setCenter(new window.kakao.maps.LatLng(center.lat, center.lng))
+  }, [center.lat, center.lng])
+
   // 오버레이(마커·구역·핀) 동기화
   useEffect(() => {
     const map = mapRef.current

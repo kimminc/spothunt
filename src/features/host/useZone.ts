@@ -12,13 +12,21 @@ export function useZone(roomId: string) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // DB에서 기존 설정 로드
     supabase.from('event_rooms').select('*').eq('id', roomId).single()
       .then(({ data }) => {
         if (!data) return
         setRoom(data as EventRoom)
         if (data.center_lat && data.center_lat !== 0) {
+          // 기존 저장된 위치가 있으면 그걸 사용
           setCenter({ lat: data.center_lat, lng: data.center_lng })
           setRadius(data.boundary_radius_meter)
+        } else {
+          // 없으면 현재 위치로 자동 초기화
+          navigator.geolocation?.getCurrentPosition(
+            (pos) => setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+            () => {}  // 권한 거부 시 무시 (버튼으로 재시도 가능)
+          )
         }
       })
   }, [roomId])
