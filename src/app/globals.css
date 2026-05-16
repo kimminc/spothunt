@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,9 +6,37 @@
 
 @layer base {
   body {
-    font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color: #101114;
-    background: #ffffff;
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #f3dfd1;
+    background: #1b110a;
     -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background: rgba(27, 17, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .glass-hud {
+    background: rgba(40, 29, 21, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .glass-card {
+    background: rgba(40, 29, 21, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .topo-bg {
+    background-color: #1b110a;
+    background-image: radial-gradient(#3f3229 0.5px, transparent 0.5px);
+    background-size: 24px 24px;
+  }
+  .font-headline {
+    font-family: 'Montserrat', sans-serif;
   }
 }
