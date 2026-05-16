@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getPlayerSession } from '@/lib/session'
@@ -10,34 +10,34 @@ export function usePlayerLobby(roomId: string) {
   const [participantCount, setParticipantCount] = useState(0)
   const [loading, setLoading] = useState(true)
 
+  const refresh = useCallback(async () => {
+    const [{ data: roomData }, { count }] = await Promise.all([
+      supabase.from('event_rooms').select('*').eq('id', roomId).single(),
+      supabase.from('participants').select('*', { count: 'exact', head: true }).eq('room_id', roomId),
+    ])
+    if (roomData) {
+      setRoom(roomData as EventRoom)
+      if (roomData.status === 'RUNNING') router.replace(`/join/${roomId}/play`)
+      if (roomData.status === 'CANCELLED') router.replace('/')
+    }
+    setParticipantCount(count ?? 0)
+    setLoading(false)
+  }, [roomId, router])
+
   useEffect(() => {
     const session = getPlayerSession()
     if (!session || session.roomId !== roomId) {
       router.replace(`/join/${roomId}`)
       return
     }
+    refresh()
+  }, [roomId, router, refresh])
 
-    async function load() {
-      const [{ data: roomData }, { count }] = await Promise.all([
-        supabase.from('event_rooms').select('*').eq('id', roomId).single(),
-        supabase.from('participants').select('*', { count: 'exact', head: true }).eq('room_id', roomId),
-      ])
-      if (roomData) setRoom(roomData)
-      setParticipantCount(count ?? 0)
-      setLoading(false)
-
-      // 이미 RUNNING이면 바로 이동
-      if (roomData?.status === 'RUNNING') router.replace(`/join/${roomId}/play`)
-    }
-    load()
-  }, [roomId, router])
-
-  // 이벤트 상태 실시간 구독 — RUNNING 되면 자동 이동
+  // Realtime + 2초 폴링 (Realtime 미활성화 대비)
   useEffect(() => {
     const channel = supabase
       .channel(`player-lobby-${roomId}`)
-      .on(
-        'postgres_changes',
+      .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'event_rooms', filter: `id=eq.${roomId}` },
         (payload) => {
           const updated = payload.new as EventRoom
@@ -46,14 +46,22 @@ export function usePlayerLobby(roomId: string) {
           if (updated.status === 'CANCELLED') router.replace('/')
         }
       )
-      .on(
-        'postgres_changes',
+      .on('postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'participants', filter: `room_id=eq.${roomId}` },
-        () => setParticipantCount((n) => n + 1)
+        () => refresh()
       )
-      .subscribe()
-    return () => { supabase.removeChannel(channel) }
-  }, [roomId, router])
+      .subscribe((status) => {
+        console.log('[PlayerLobby] Realtime status:', status)
+      })
+
+    // 폴링 fallback — 2초마다 상태 확인
+    const timer = setInterval(refresh, 2000)
+
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(timer)
+    }
+  }, [roomId, router, refresh])
 
   return { room, participantCount, loading }
 }
